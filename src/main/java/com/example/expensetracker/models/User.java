@@ -1,5 +1,6 @@
 package com.example.expensetracker.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -3,6 +3,8 @@ package com.example.expensetracker.controllers;
 import com.example.expensetracker.ecxeptions.ExpenseNotFoundException;
 import com.example.expensetracker.ecxeptions.UserNotFoundException;
 import com.example.expensetracker.models.Expense;
+import com.example.expensetracker.requestDTOs.ExpenseRequestDTO;
+import com.example.expensetracker.responseDTOs.ExpenseResponseDTO;
 import com.example.expensetracker.services.ExpenseService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,23 +20,23 @@ public class ExpenseController {
     }
 
     @GetMapping("/get-all")
-    public List<Expense> getAllExpenses() {
+    public List<ExpenseResponseDTO> getAllExpenses() {
         return expenseService.getAllExpenses();
     }
 
     @GetMapping("/get-expenses-by-user-id")
-    public List<Expense> getExpensesById(@RequestParam long id) throws UserNotFoundException {
+    public List<ExpenseResponseDTO> getExpensesById(@RequestParam long id) throws UserNotFoundException {
         return expenseService.getAllExpensesByUserId(id);
     }
 
     @PostMapping("/add-expense")
-    public Expense createExpense(@RequestBody Expense expense) throws ExpenseNotFoundException {
-        return expenseService.createExpense(expense);
+    public ExpenseResponseDTO createExpense(@RequestBody ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
+        return expenseService.createExpense(expenseRequestDTO);
     }
 
     @PutMapping("/update-expense")
-    public Expense updateExpense(@RequestBody Expense expense) throws ExpenseNotFoundException {
-        return expenseService.updateExpense(expense);
+    public ExpenseResponseDTO updateExpense(@RequestBody ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
+        return expenseService.updateExpense(expenseRequestDTO);
     }
 
     @DeleteMapping("/delete-expense")
