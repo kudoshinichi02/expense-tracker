@@ -1,6 +1,6 @@
 package com.example.expensetracker.services;
 
-import com.example.expensetracker.ecxeptions.UserNotFoundException;
+import com.example.expensetracker.exceptions.UserNotFoundException;
 import com.example.expensetracker.mappers.UserMapper;
 import com.example.expensetracker.models.User;
 import com.example.expensetracker.repos.UserRepo;
@@ -30,7 +30,7 @@ public class UserService {
         Optional<User> userToUpdateOptional = userRepo.findById(UserMapper.toEntity(userRequestDTO).getId());
 
         if (userToUpdateOptional.isEmpty()) {
-            throw new UserNotFoundException("user with name:" + UserMapper.toEntity(userRequestDTO).getUsername() + " does not exist");
+            throw new UserNotFoundException("User with name:" + UserMapper.toEntity(userRequestDTO).getUsername() + " does not exist");
         }
 
         User userToUpdate = userToUpdateOptional.get();
@@ -53,7 +53,7 @@ public class UserService {
     public void deleteUser(long id) throws UserNotFoundException {
         Optional<User> userToDeleteOptional = userRepo.findById(id);
         if (userToDeleteOptional.isEmpty()) {
-            throw new UserNotFoundException("user with id: " + id + " does not exist");
+            throw new UserNotFoundException("User with id: " + id + " does not exist");
         }
         userRepo.deleteById(userToDeleteOptional.get().getId());
 
@@ -63,7 +63,7 @@ public class UserService {
         Optional<User> userToFindOptional = userRepo.findById(id);
 
         if (userToFindOptional.isEmpty()) {
-            throw new UserNotFoundException("user with id: " + id + " does not exist");
+            throw new UserNotFoundException("User with id: " + id + " does not exist");
         }
 
         return UserMapper.toDTO(userToFindOptional.get());

@@ -1,7 +1,7 @@
 package com.example.expensetracker.services;
 
-import com.example.expensetracker.ecxeptions.ExpenseNotFoundException;
-import com.example.expensetracker.ecxeptions.UserNotFoundException;
+import com.example.expensetracker.exceptions.ExpenseNotFoundException;
+import com.example.expensetracker.exceptions.UserNotFoundException;
 import com.example.expensetracker.mappers.ExpenseMapper;
 import com.example.expensetracker.models.Expense;
 import com.example.expensetracker.models.User;
@@ -32,7 +32,7 @@ public class ExpenseService {
         Optional<User> userOptional = userRepo.findById(id);
 
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException("user with id: " + id + " does not exist");
+            throw new UserNotFoundException("User with id: " + id + " does not exist");
         }
 
         expenseRepo.findByUserId(userOptional.get().getId());
@@ -43,7 +43,7 @@ public class ExpenseService {
         Optional<User> userOptional = userRepo.findById(ExpenseMapper.ToEntity(expenseRequestDTO).getUser().getId());
 
         if (userOptional.isEmpty()) {
-            throw new ExpenseNotFoundException("user with id:"  + ExpenseMapper.ToEntity(expenseRequestDTO).getUser().getId() +  "does not exist");
+            throw new ExpenseNotFoundException("User with id: "  + ExpenseMapper.ToEntity(expenseRequestDTO).getUser().getId() +  " does not exist");
         }
         ExpenseMapper.ToEntity(expenseRequestDTO).setUser(userOptional.get());
         return ExpenseMapper.toDTO(expenseRepo.save(ExpenseMapper.ToEntity(expenseRequestDTO)));
@@ -53,7 +53,7 @@ public class ExpenseService {
         Optional<Expense> expenseToUpdateOptional = expenseRepo.findById(ExpenseMapper.ToEntity(expenseRequestDTO).getId());
         
         if (expenseToUpdateOptional.isEmpty()) {
-            throw new ExpenseNotFoundException("expenes with the id:" + ExpenseMapper.ToEntity(expenseRequestDTO).getId() + " does not exist");
+            throw new ExpenseNotFoundException("Expense with the id: " + ExpenseMapper.ToEntity(expenseRequestDTO).getId() + " does not exist");
         }
         Expense expenseToUpdate = expenseToUpdateOptional.get();
 
@@ -76,7 +76,7 @@ public class ExpenseService {
         Optional<Expense> expenseToDeleteOptional = expenseRepo.findById(id);
 
         if (expenseToDeleteOptional.isEmpty()) {
-            throw new ExpenseNotFoundException("expenes with the id:" + id + " does not exist");
+            throw new ExpenseNotFoundException("Expense with the id: " + id + " does not exist");
         }
         expenseRepo.delete(expenseToDeleteOptional.get());
     }

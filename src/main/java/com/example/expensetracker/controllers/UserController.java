@@ -1,9 +1,11 @@
 package com.example.expensetracker.controllers;
 
-import com.example.expensetracker.ecxeptions.UserNotFoundException;
+import com.example.expensetracker.exceptions.UserNotFoundException;
 import com.example.expensetracker.requestDTOs.UserRequestDTO;
 import com.example.expensetracker.responseDTOs.UserResponseDTO;
 import com.example.expensetracker.services.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,28 +20,30 @@ public class UserController {
     }
 
     @GetMapping("/get-all")
-    public List<UserResponseDTO> getAllUsers(){
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
+        return new ResponseEntity<>(userService.getAllUsers() , HttpStatus.OK);
     }
 
     @GetMapping("/get-user-by-id")
-    public UserResponseDTO getUserByName(@RequestParam long id) throws UserNotFoundException {
-        return userService.findUserById(id);
+    public ResponseEntity<UserResponseDTO> getUserByName(@RequestParam long id) throws UserNotFoundException {
+        return new ResponseEntity<>(userService.findUserById(id) , HttpStatus.OK);
     }
 
     @PostMapping("/add-user")
-    public UserResponseDTO createUser(@RequestBody UserRequestDTO userRequestDTO){
-        return userService.createUser(userRequestDTO);
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO){
+        return new ResponseEntity<>(userService.createUser(userRequestDTO) , HttpStatus.CREATED);
     }
 
     @PutMapping("/update-user")
-    public UserResponseDTO updateUser(@RequestBody UserRequestDTO userRequestDTO) throws UserNotFoundException {
-        return userService.updateUser(userRequestDTO);
+    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserRequestDTO userRequestDTO) throws UserNotFoundException {
+        return new ResponseEntity<>(userService.updateUser(userRequestDTO) , HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-user")
-    public void deleteUser(@RequestParam long id) throws UserNotFoundException {
+    public ResponseEntity<UserResponseDTO> deleteUser(@RequestParam long id) throws UserNotFoundException {
         userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
 }

@@ -1,11 +1,12 @@
 package com.example.expensetracker.controllers;
 
-import com.example.expensetracker.ecxeptions.ExpenseNotFoundException;
-import com.example.expensetracker.ecxeptions.UserNotFoundException;
-import com.example.expensetracker.models.Expense;
+import com.example.expensetracker.exceptions.ExpenseNotFoundException;
+import com.example.expensetracker.exceptions.UserNotFoundException;
 import com.example.expensetracker.requestDTOs.ExpenseRequestDTO;
 import com.example.expensetracker.responseDTOs.ExpenseResponseDTO;
 import com.example.expensetracker.services.ExpenseService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,27 +21,28 @@ public class ExpenseController {
     }
 
     @GetMapping("/get-all")
-    public List<ExpenseResponseDTO> getAllExpenses() {
-        return expenseService.getAllExpenses();
+    public ResponseEntity<List<ExpenseResponseDTO>> getAllExpenses() {
+        return new ResponseEntity<>(expenseService.getAllExpenses() , HttpStatus.OK);
     }
 
     @GetMapping("/get-expenses-by-user-id")
-    public List<ExpenseResponseDTO> getExpensesById(@RequestParam long id) throws UserNotFoundException {
-        return expenseService.getAllExpensesByUserId(id);
+    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesById(@RequestParam long id) throws UserNotFoundException {
+        return new ResponseEntity<>(expenseService.getAllExpensesByUserId(id) , HttpStatus.OK);
     }
 
     @PostMapping("/add-expense")
-    public ExpenseResponseDTO createExpense(@RequestBody ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
-        return expenseService.createExpense(expenseRequestDTO);
+    public ResponseEntity<ExpenseResponseDTO> createExpense(@RequestBody ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
+        return new ResponseEntity<>(expenseService.createExpense(expenseRequestDTO) , HttpStatus.CREATED);
     }
 
     @PutMapping("/update-expense")
-    public ExpenseResponseDTO updateExpense(@RequestBody ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
-        return expenseService.updateExpense(expenseRequestDTO);
+    public ResponseEntity<ExpenseResponseDTO> updateExpense(@RequestBody ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
+        return new ResponseEntity<>(expenseService.updateExpense(expenseRequestDTO) , HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-expense")
-    public void deleteExpense(@RequestParam long id) throws ExpenseNotFoundException {
+    public ResponseEntity<ExpenseResponseDTO> deleteExpense(@RequestParam long id) throws ExpenseNotFoundException {
         expenseService.deleteExpense(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
