@@ -1,5 +1,6 @@
 package com.example.expensetracker.services;
 
+import com.example.expensetracker.enums.ExpenseCategory;
 import com.example.expensetracker.exceptions.ExpenseNotFoundException;
 import com.example.expensetracker.exceptions.UserNotFoundException;
 import com.example.expensetracker.mappers.ExpenseMapper;
@@ -35,7 +36,7 @@ public class ExpenseService {
             throw new UserNotFoundException("User with id: " + id + " does not exist");
         }
 
-        expenseRepo.findByUserId(userOptional.get().getId());
+        expenseRepo.findByUserId(id);
         return userOptional.get().getExpenses().stream().map(ExpenseMapper::toDTO).toList();
     }
 
@@ -82,4 +83,25 @@ public class ExpenseService {
     }
 
 
+    public String getTotalExpensesByUserId(long id) throws UserNotFoundException {
+        Optional<User> userOptional = userRepo.findById(id);
+
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException("User with id: " + id + " does not exist");
+        }
+
+        return "your total expenses is " + expenseRepo.calculateTotalExpensesForUser(id) + " $";
+    }
+
+    public String getTotalExpensesByUserIdAndCategory(long id , String category) throws UserNotFoundException {
+        Optional<User> userOptional = userRepo.findById(id);
+
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException("User with id: " + id + " does not exist");
+        }
+
+        return "your total expenses for the " + category.toUpperCase()  + " category is " + expenseRepo.calculateExpensesByCategoryForUser(id , ExpenseCategory.valueOf(category.toUpperCase())) + " $";
+
+
+    }
 }

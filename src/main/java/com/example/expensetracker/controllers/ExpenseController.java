@@ -30,6 +30,16 @@ public class ExpenseController {
         return new ResponseEntity<>(expenseService.getAllExpensesByUserId(id) , HttpStatus.OK);
     }
 
+    @GetMapping("/get-total-expenses-by-user-id")
+    public ResponseEntity<String> getTotalExpensesByUserId(@RequestParam long id) throws UserNotFoundException {
+        return new ResponseEntity<>(expenseService.getTotalExpensesByUserId(id) , HttpStatus.OK);
+    }
+
+    @GetMapping("/get-total-expenses-by-user-id-and-category")
+    public ResponseEntity<String> getTotalExpensesByUserIdAndCategory(@RequestParam long id , @RequestParam String category) throws UserNotFoundException {
+        return new ResponseEntity<>(expenseService.getTotalExpensesByUserIdAndCategory(id , category) , HttpStatus.OK);
+    }
+
     @PostMapping("/add-expense")
     public ResponseEntity<ExpenseResponseDTO> createExpense(@RequestBody ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
         return new ResponseEntity<>(expenseService.createExpense(expenseRequestDTO) , HttpStatus.CREATED);

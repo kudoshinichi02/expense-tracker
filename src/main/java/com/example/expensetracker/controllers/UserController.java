@@ -43,7 +43,8 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> deleteUser(@RequestParam long id) throws UserNotFoundException {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
-
     }
+
+
 
 }
