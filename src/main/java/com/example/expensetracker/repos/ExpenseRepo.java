@@ -10,9 +10,9 @@ import java.util.List;
 public interface ExpenseRepo extends JpaRepository<Expense, Long> {
     List<Expense> findByUserId(Long user_id);
 
-    @Query("SELECT (SUM(e.amount) , 0) FROM Expense e WHERE e.user.id = :userId")
-    Double calculateTotalExpensesForUser(Long userId);
+    @Query("SELECT (SUM(e.amount) , 0) FROM Expense e WHERE e.user.username = :username")
+    Double calculateTotalExpensesForUser(String username);
 
-    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.user.id = :userId AND e.category = :category")
-    Double calculateExpensesByCategoryForUser(Long userId, ExpenseCategory category);
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.user.username = :username AND e.category = :category")
+    Double calculateExpensesByCategoryForUser(String username, ExpenseCategory category);
 }

@@ -3,9 +3,7 @@ package com.example.expensetracker.models;
 import com.example.expensetracker.enums.ExpenseCategory;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDate;
-
 
 @Getter
 @Setter
@@ -13,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Entity
+
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +21,6 @@ public class Expense {
     private ExpenseCategory category;
     private LocalDate date;
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 }

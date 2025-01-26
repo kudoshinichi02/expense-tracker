@@ -1,11 +1,12 @@
 package com.example.expensetracker.controllers;
 
-import com.example.expensetracker.exceptions.UserNotFoundException;
+import com.example.expensetracker.exceptions.UserException;
 import com.example.expensetracker.requestDTOs.UserRequestDTO;
 import com.example.expensetracker.responseDTOs.UserResponseDTO;
 import com.example.expensetracker.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,27 +25,27 @@ public class UserController {
         return new ResponseEntity<>(userService.getAllUsers() , HttpStatus.OK);
     }
 
+
     @GetMapping("/get-user-by-id")
-    public ResponseEntity<UserResponseDTO> getUserByName(@RequestParam long id) throws UserNotFoundException {
+    public ResponseEntity<UserResponseDTO> getUserByName(@RequestParam long id) throws UserException {
         return new ResponseEntity<>(userService.findUserById(id) , HttpStatus.OK);
     }
 
     @PostMapping("/add-user")
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO){
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) throws UserException {
         return new ResponseEntity<>(userService.createUser(userRequestDTO) , HttpStatus.CREATED);
     }
 
     @PutMapping("/update-user")
-    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserRequestDTO userRequestDTO) throws UserNotFoundException {
+    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserRequestDTO userRequestDTO) throws UserException {
         return new ResponseEntity<>(userService.updateUser(userRequestDTO) , HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-user")
-    public ResponseEntity<UserResponseDTO> deleteUser(@RequestParam long id) throws UserNotFoundException {
+    public ResponseEntity<UserResponseDTO> deleteUser(@RequestParam long id) throws UserException {
+
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
 
 }

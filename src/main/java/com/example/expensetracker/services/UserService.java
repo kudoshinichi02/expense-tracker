@@ -1,11 +1,12 @@
 package com.example.expensetracker.services;
 
-import com.example.expensetracker.exceptions.UserNotFoundException;
+import com.example.expensetracker.exceptions.UserException;
 import com.example.expensetracker.mappers.UserMapper;
 import com.example.expensetracker.models.User;
 import com.example.expensetracker.repos.UserRepo;
 import com.example.expensetracker.requestDTOs.UserRequestDTO;
 import com.example.expensetracker.responseDTOs.UserResponseDTO;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -13,57 +14,63 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepo userRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepo userRepo) {
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<UserResponseDTO> getAllUsers() {
         return userRepo.findAll().stream().map(UserMapper::toDTO).toList();
     }
 
-    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
-        return UserMapper.toDTO(userRepo.save(UserMapper.toEntity(userRequestDTO)));
+    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) throws UserException {
+        if (userRequestDTO.password() == null)
+            throw new UserException("Password must not be empty");
+        User user = UserMapper.toEntity(userRequestDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return UserMapper.toDTO(userRepo.save(user));
     }
 
-    public UserResponseDTO updateUser(UserRequestDTO userRequestDTO) throws UserNotFoundException {
-        Optional<User> userToUpdateOptional = userRepo.findById(UserMapper.toEntity(userRequestDTO).getId());
+    public UserResponseDTO updateUser(UserRequestDTO userRequestDTO) throws UserException {
+        Optional<User> userToUpdateOptional = userRepo.findById(userRequestDTO.id());
 
         if (userToUpdateOptional.isEmpty()) {
-            throw new UserNotFoundException("User with name:" + UserMapper.toEntity(userRequestDTO).getUsername() + " does not exist");
+            throw new UserException("User with name:" + UserMapper.toEntity(userRequestDTO).getUsername() + " does not exist");
         }
 
         User userToUpdate = userToUpdateOptional.get();
 
-        if (userToUpdate.getEmail() != null) {
-            userToUpdate.setEmail(UserMapper.toEntity(userRequestDTO).getEmail());
+        if (userRequestDTO.email() != null) {
+            userToUpdate.setEmail(userRequestDTO.email());
         }
 
-        if (userToUpdate.getPassword() != null) {
-            userToUpdate.setPassword(UserMapper.toEntity(userRequestDTO).getPassword());
+        if (userRequestDTO.password() != null) {
+            userToUpdate.setPassword(passwordEncoder.encode(userRequestDTO.password()));
         }
 
-        if (userToUpdate.getUsername() != null) {
-            userToUpdate.setUsername(UserMapper.toEntity(userRequestDTO).getUsername());
+        if (userRequestDTO.username() != null) {
+            userToUpdate.setUsername(userRequestDTO.username());
         }
 
         return UserMapper.toDTO(userRepo.save(userToUpdate));
     }
 
-    public void deleteUser(long id) throws UserNotFoundException {
+    public void deleteUser(long id) throws UserException {
         Optional<User> userToDeleteOptional = userRepo.findById(id);
         if (userToDeleteOptional.isEmpty()) {
-            throw new UserNotFoundException("User with id: " + id + " does not exist");
+            throw new UserException("User with id: " + id + " does not exist");
         }
         userRepo.deleteById(userToDeleteOptional.get().getId());
 
     }
 
-    public UserResponseDTO findUserById(long id) throws UserNotFoundException {
+    public UserResponseDTO findUserById(long id) throws UserException {
         Optional<User> userToFindOptional = userRepo.findById(id);
 
         if (userToFindOptional.isEmpty()) {
-            throw new UserNotFoundException("User with id: " + id + " does not exist");
+            throw new UserException("User with id: " + id + " does not exist");
         }
 
         return UserMapper.toDTO(userToFindOptional.get());

@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(value = UserNotFoundException.class)
-    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException e) {
+    @ExceptionHandler(value = UserException.class)
+    public ResponseEntity<String> handleUserNotFoundException(UserException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(value = ExpenseNotFoundException.class)
-    public ResponseEntity<String> handleExpenseNotFoundException(ExpenseNotFoundException e) {
+    @ExceptionHandler(value = ExpenseException.class)
+    public ResponseEntity<String> handleExpenseNotFoundException(ExpenseException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 

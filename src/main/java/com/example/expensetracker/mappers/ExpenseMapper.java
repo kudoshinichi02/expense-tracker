@@ -7,11 +7,9 @@ import com.example.expensetracker.responseDTOs.ExpenseResponseDTO;
 public class ExpenseMapper {
     public static Expense ToEntity (ExpenseRequestDTO expenseRequestDTO){
         return Expense.builder()
-                .id(expenseRequestDTO.id())
                 .amount(expenseRequestDTO.amount())
                 .category(expenseRequestDTO.category())
                 .date(expenseRequestDTO.date())
-                .user(expenseRequestDTO.user())
                 .build();
     }
 

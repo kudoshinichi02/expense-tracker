@@ -1,8 +1,8 @@
 package com.example.expensetracker.services;
 
 import com.example.expensetracker.enums.ExpenseCategory;
-import com.example.expensetracker.exceptions.ExpenseNotFoundException;
-import com.example.expensetracker.exceptions.UserNotFoundException;
+import com.example.expensetracker.exceptions.ExpenseException;
+import com.example.expensetracker.exceptions.UserException;
 import com.example.expensetracker.mappers.ExpenseMapper;
 import com.example.expensetracker.models.Expense;
 import com.example.expensetracker.models.User;
@@ -10,6 +10,7 @@ import com.example.expensetracker.repos.ExpenseRepo;
 import com.example.expensetracker.repos.UserRepo;
 import com.example.expensetracker.requestDTOs.ExpenseRequestDTO;
 import com.example.expensetracker.responseDTOs.ExpenseResponseDTO;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,88 +21,103 @@ public class ExpenseService {
     final ExpenseRepo expenseRepo;
     final UserRepo userRepo;
 
+
     public ExpenseService(ExpenseRepo expenseRepo, UserRepo userRepo) {
         this.expenseRepo = expenseRepo;
         this.userRepo = userRepo;
     }
 
+
+
     public List<ExpenseResponseDTO> getAllExpenses() {
         return expenseRepo.findAll().stream().map(ExpenseMapper::toDTO).toList();
     }
 
-    public List<ExpenseResponseDTO> getAllExpensesByUserId(long id) throws UserNotFoundException {
-        Optional<User> userOptional = userRepo.findById(id);
+    public List<ExpenseResponseDTO> getAllExpensesByUsername() throws UserException {
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> userOptional = userRepo.findByUsername(name);
 
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException("User with id: " + id + " does not exist");
+            throw new UserException("User with the name: " + name + " does not exist");
         }
 
-        expenseRepo.findByUserId(id);
         return userOptional.get().getExpenses().stream().map(ExpenseMapper::toDTO).toList();
     }
 
-    public ExpenseResponseDTO createExpense(ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
-        Optional<User> userOptional = userRepo.findById(ExpenseMapper.ToEntity(expenseRequestDTO).getUser().getId());
+    public String getTotalExpensesByUsername() throws UserException {
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> userOptional = userRepo.findByUsername(name);
 
         if (userOptional.isEmpty()) {
-            throw new ExpenseNotFoundException("User with id: "  + ExpenseMapper.ToEntity(expenseRequestDTO).getUser().getId() +  " does not exist");
+            throw new UserException("User with name: " + name + " does not exist");
         }
-        ExpenseMapper.ToEntity(expenseRequestDTO).setUser(userOptional.get());
-        return ExpenseMapper.toDTO(expenseRepo.save(ExpenseMapper.ToEntity(expenseRequestDTO)));
+
+        Double total = expenseRepo.calculateTotalExpensesForUser(name);
+        if (total == null)
+            total = 0.0;
+
+        return "your total expenses is " + total + " $";
     }
 
-    public ExpenseResponseDTO updateExpense(ExpenseRequestDTO expenseRequestDTO) throws ExpenseNotFoundException {
-        Optional<Expense> expenseToUpdateOptional = expenseRepo.findById(ExpenseMapper.ToEntity(expenseRequestDTO).getId());
+    public String getTotalExpensesByUsernameAndCategory(String category) throws UserException {
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> userOptional = userRepo.findByUsername(name);
+
+        if (userOptional.isEmpty()) {
+            throw new UserException("User with id: " + name + " does not exist");
+        }
+
+        Double total = expenseRepo.calculateExpensesByCategoryForUser(name , ExpenseCategory.valueOf(category.toUpperCase()));
+
+        if (total == null)
+            total = 0.0;
+
+        return "your total expenses for the " + category.toUpperCase()  + " category is " + total + " $";
+
+    }
+
+    public ExpenseResponseDTO createExpense(ExpenseRequestDTO expenseRequestDTO) throws ExpenseException {
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Optional<User> userOptional = userRepo.findByUsername(name);
+
+        if (userOptional.isEmpty()) {
+            throw new ExpenseException("User with name: "  + name +  " does not exist");
+        }
+        Expense expense = ExpenseMapper.ToEntity(expenseRequestDTO);
+        expense.setUser(userOptional.get());
+        return ExpenseMapper.toDTO(expenseRepo.save(expense));
+    }
+
+    public ExpenseResponseDTO updateExpense(ExpenseRequestDTO expenseRequestDTO) throws ExpenseException {
+        Optional<Expense> expenseToUpdateOptional = expenseRepo.findById(expenseRequestDTO.id());
         
         if (expenseToUpdateOptional.isEmpty()) {
-            throw new ExpenseNotFoundException("Expense with the id: " + ExpenseMapper.ToEntity(expenseRequestDTO).getId() + " does not exist");
+            throw new ExpenseException("Expense with the id: " + ExpenseMapper.ToEntity(expenseRequestDTO).getId() + " does not exist");
         }
         Expense expenseToUpdate = expenseToUpdateOptional.get();
 
-        if (expenseToUpdate.getAmount() != null){
-            expenseToUpdate.setAmount(ExpenseMapper.ToEntity(expenseRequestDTO).getAmount());
+        if (expenseRequestDTO.amount() != null){
+            expenseToUpdate.setAmount(expenseRequestDTO.amount());
         }
 
-        if (expenseToUpdate.getDate() != null){
-            expenseToUpdate.setDate(ExpenseMapper.ToEntity(expenseRequestDTO).getDate());
+        if (expenseRequestDTO.date() != null){
+            expenseToUpdate.setDate(expenseRequestDTO.date());
         }
 
-        if (expenseToUpdate.getCategory() != null){
-            expenseToUpdate.setCategory(ExpenseMapper.ToEntity(expenseRequestDTO).getCategory());
+        if (expenseRequestDTO.category() != null){
+            expenseToUpdate.setCategory(expenseRequestDTO.category());
         }
 
         return ExpenseMapper.toDTO(expenseRepo.save(expenseToUpdate));
     }
 
-    public void deleteExpense(long id) throws ExpenseNotFoundException {
+    public void deleteExpense(long id) throws ExpenseException {
         Optional<Expense> expenseToDeleteOptional = expenseRepo.findById(id);
 
         if (expenseToDeleteOptional.isEmpty()) {
-            throw new ExpenseNotFoundException("Expense with the id: " + id + " does not exist");
+            throw new ExpenseException("Expense with the id: " + id + " does not exist");
         }
         expenseRepo.delete(expenseToDeleteOptional.get());
-    }
-
-
-    public String getTotalExpensesByUserId(long id) throws UserNotFoundException {
-        Optional<User> userOptional = userRepo.findById(id);
-
-        if (userOptional.isEmpty()) {
-            throw new UserNotFoundException("User with id: " + id + " does not exist");
-        }
-
-        return "your total expenses is " + expenseRepo.calculateTotalExpensesForUser(id) + " $";
-    }
-
-    public String getTotalExpensesByUserIdAndCategory(long id , String category) throws UserNotFoundException {
-        Optional<User> userOptional = userRepo.findById(id);
-
-        if (userOptional.isEmpty()) {
-            throw new UserNotFoundException("User with id: " + id + " does not exist");
-        }
-
-        return "your total expenses for the " + category.toUpperCase()  + " category is " + expenseRepo.calculateExpensesByCategoryForUser(id , ExpenseCategory.valueOf(category.toUpperCase())) + " $";
-
-
     }
 }
