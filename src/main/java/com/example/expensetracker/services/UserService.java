@@ -25,6 +25,16 @@ public class UserService {
         return userRepo.findAll().stream().map(UserMapper::toDTO).toList();
     }
 
+    public UserResponseDTO findUserById(long id) throws UserException {
+        Optional<User> userToFindOptional = userRepo.findById(id);
+
+        if (userToFindOptional.isEmpty()) {
+            throw new UserException("User with id: " + id + " does not exist");
+        }
+
+        return UserMapper.toDTO(userToFindOptional.get());
+    }
+
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) throws UserException {
         if (userRequestDTO.password() == null)
             throw new UserException("Password must not be empty");
@@ -53,6 +63,8 @@ public class UserService {
         if (userRequestDTO.username() != null) {
             userToUpdate.setUsername(userRequestDTO.username());
         }
+        if ((userRequestDTO.roles().isEmpty()))
+            userToUpdate.setRoles(userRequestDTO.roles());
 
         return UserMapper.toDTO(userRepo.save(userToUpdate));
     }
@@ -66,13 +78,5 @@ public class UserService {
 
     }
 
-    public UserResponseDTO findUserById(long id) throws UserException {
-        Optional<User> userToFindOptional = userRepo.findById(id);
 
-        if (userToFindOptional.isEmpty()) {
-            throw new UserException("User with id: " + id + " does not exist");
-        }
-
-        return UserMapper.toDTO(userToFindOptional.get());
-    }
 }

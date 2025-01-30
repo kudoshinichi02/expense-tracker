@@ -6,7 +6,7 @@ import com.example.expensetracker.responseDTOs.UserResponseDTO;
 import com.example.expensetracker.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,12 +20,13 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/get-all")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
         return new ResponseEntity<>(userService.getAllUsers() , HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/get-user-by-id")
     public ResponseEntity<UserResponseDTO> getUserByName(@RequestParam long id) throws UserException {
         return new ResponseEntity<>(userService.findUserById(id) , HttpStatus.OK);
@@ -36,11 +37,13 @@ public class UserController {
         return new ResponseEntity<>(userService.createUser(userRequestDTO) , HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/update-user")
     public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserRequestDTO userRequestDTO) throws UserException {
         return new ResponseEntity<>(userService.updateUser(userRequestDTO) , HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete-user")
     public ResponseEntity<UserResponseDTO> deleteUser(@RequestParam long id) throws UserException {
 

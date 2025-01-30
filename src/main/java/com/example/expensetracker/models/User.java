@@ -1,10 +1,11 @@
 package com.example.expensetracker.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.example.expensetracker.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 
 @Getter
@@ -22,6 +23,8 @@ public class User {
     private String username;
     private String password;
     private String email;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<Role> roles;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expense> expenses;
 }

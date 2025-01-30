@@ -28,6 +28,7 @@ public class UserMapper {
                 .username(userRequestDTO.username())
                 .password(userRequestDTO.password())
                 .email(userRequestDTO.email())
+                .roles(userRequestDTO.roles())
                 .build();
     }
 }
