@@ -5,8 +5,9 @@ import com.example.expensetracker.models.User;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 
-public record ExpenseResponseDTO(Long id , Double amount, ExpenseCategory category, LocalDate date, Long userId) {
+public record ExpenseResponseDTO(Long id , Double amount, ExpenseCategory category, LocalDateTime createdAt, LocalDateTime updatedAt, Long userId) {
 }

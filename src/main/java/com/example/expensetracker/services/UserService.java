@@ -25,7 +25,7 @@ public class UserService {
         return userRepo.findAll().stream().map(UserMapper::toDTO).toList();
     }
 
-    public UserResponseDTO findUserById(long id) throws UserException {
+    public UserResponseDTO getUserById(long id) throws UserException {
         Optional<User> userToFindOptional = userRepo.findById(id);
 
         if (userToFindOptional.isEmpty()) {
@@ -33,6 +33,10 @@ public class UserService {
         }
 
         return UserMapper.toDTO(userToFindOptional.get());
+    }
+
+    public List<UserResponseDTO> getUsersByYearAndMonth(int year, int month){
+        return userRepo.findUsersByCreationDateMonthAndYear(year, month).stream().map(UserMapper::toDTO).toList();
     }
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) throws UserException {
@@ -63,8 +67,10 @@ public class UserService {
         if (userRequestDTO.username() != null) {
             userToUpdate.setUsername(userRequestDTO.username());
         }
-        if ((userRequestDTO.roles().isEmpty()))
+
+        if (userToUpdate.getRoles() != null) {
             userToUpdate.setRoles(userRequestDTO.roles());
+        }
 
         return UserMapper.toDTO(userRepo.save(userToUpdate));
     }
@@ -77,6 +83,5 @@ public class UserService {
         userRepo.deleteById(userToDeleteOptional.get().getId());
 
     }
-
 
 }

@@ -9,7 +9,6 @@ public class ExpenseMapper {
         return Expense.builder()
                 .amount(expenseRequestDTO.amount())
                 .category(expenseRequestDTO.category())
-                .date(expenseRequestDTO.date())
                 .build();
     }
 
@@ -18,7 +17,8 @@ public class ExpenseMapper {
                 .id(expense.getId())
                 .amount(expense.getAmount())
                 .category(expense.getCategory())
-                .date(expense.getDate())
+                .createdAt(expense.getCreatedAt())
+                .updatedAt(expense.getUpdatedAt())
                 .userId(expense.getUser().getId())
                 .build();
     }

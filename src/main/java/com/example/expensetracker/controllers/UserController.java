@@ -26,10 +26,16 @@ public class UserController {
         return new ResponseEntity<>(userService.getAllUsers() , HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping("/get-user-by-id")
     public ResponseEntity<UserResponseDTO> getUserByName(@RequestParam long id) throws UserException {
-        return new ResponseEntity<>(userService.findUserById(id) , HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUserById(id) , HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping("/get-users-by-date")
+    public ResponseEntity<List<UserResponseDTO>> getUsersByDate(@RequestParam int year ,@RequestParam int month){
+        return new ResponseEntity<>(userService.getUsersByYearAndMonth(year , month) , HttpStatus.OK);
     }
 
     @PostMapping("/add-user")

@@ -2,7 +2,6 @@ package com.example.expensetracker.services;
 
 import com.example.expensetracker.enums.ExpenseCategory;
 import com.example.expensetracker.exceptions.ExpenseException;
-import com.example.expensetracker.exceptions.UserException;
 import com.example.expensetracker.mappers.ExpenseMapper;
 import com.example.expensetracker.models.Expense;
 import com.example.expensetracker.models.User;
@@ -33,59 +32,38 @@ public class ExpenseService {
         return expenseRepo.findAll().stream().map(ExpenseMapper::toDTO).toList();
     }
 
-    public List<ExpenseResponseDTO> getAllExpensesByUsername() throws UserException {
+    public List<ExpenseResponseDTO> getAllExpensesByUsername(){
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<User> userOptional = userRepo.findByUsername(name);
-
-        if (userOptional.isEmpty()) {
-            throw new UserException("User with the name: " + name + " does not exist");
-        }
-
-        return userOptional.get().getExpenses().stream().map(ExpenseMapper::toDTO).toList();
+        return userRepo.findByUsername(name).get().getExpenses().stream().map(ExpenseMapper::toDTO).toList();
     }
 
-    public String getTotalExpensesByUsername() throws UserException {
+    public String getTotalExpensesByUsername(){
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<User> userOptional = userRepo.findByUsername(name);
-
-        if (userOptional.isEmpty()) {
-            throw new UserException("User with name: " + name + " does not exist");
-        }
-
         Double total = expenseRepo.calculateTotalExpensesForUser(name);
         if (total == null)
             total = 0.0;
-
         return "your total expenses is " + total + " $";
     }
 
-    public String getTotalExpensesByUsernameAndCategory(String category) throws UserException {
+    public String getTotalExpensesByUsernameAndCategory(String category){
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<User> userOptional = userRepo.findByUsername(name);
-
-        if (userOptional.isEmpty()) {
-            throw new UserException("User with id: " + name + " does not exist");
-        }
 
         Double total = expenseRepo.calculateExpensesByCategoryForUser(name , ExpenseCategory.valueOf(category.toUpperCase()));
-
         if (total == null)
             total = 0.0;
-
         return "your total expenses for the " + category.toUpperCase()  + " category is " + total + " $";
+    }
 
+    public List<ExpenseResponseDTO> getExpensesByYearAndMonth(int year, int month) throws ExpenseException{
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        return expenseRepo.findByUsernameAndMonthAndYear(name, year, month).stream().map(ExpenseMapper::toDTO).toList();
     }
 
     public ExpenseResponseDTO createExpense(ExpenseRequestDTO expenseRequestDTO) throws ExpenseException {
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Optional<User> userOptional = userRepo.findByUsername(name);
-
-        if (userOptional.isEmpty()) {
-            throw new ExpenseException("User with name: "  + name +  " does not exist");
-        }
+        User user = userRepo.findByUsername(name).get();
         Expense expense = ExpenseMapper.ToEntity(expenseRequestDTO);
-        expense.setUser(userOptional.get());
+        expense.setUser(user);
         return ExpenseMapper.toDTO(expenseRepo.save(expense));
     }
 
@@ -99,10 +77,6 @@ public class ExpenseService {
 
         if (expenseRequestDTO.amount() != null){
             expenseToUpdate.setAmount(expenseRequestDTO.amount());
-        }
-
-        if (expenseRequestDTO.date() != null){
-            expenseToUpdate.setDate(expenseRequestDTO.date());
         }
 
         if (expenseRequestDTO.category() != null){

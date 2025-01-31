@@ -1,6 +1,5 @@
 package com.example.expensetracker.controllers;
 import com.example.expensetracker.exceptions.ExpenseException;
-import com.example.expensetracker.exceptions.UserException;
 import com.example.expensetracker.requestDTOs.ExpenseRequestDTO;
 import com.example.expensetracker.responseDTOs.ExpenseResponseDTO;
 import com.example.expensetracker.services.ExpenseService;
@@ -28,21 +27,28 @@ public class ExpenseController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/get-expenses-by-user-name")
-    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByUsername() throws UserException {
+    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByUsername(){
         return new ResponseEntity<>(expenseService.getAllExpensesByUsername() , HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/get-total-expenses-by-user-name")
-    public ResponseEntity<String> getTotalExpensesByUsername() throws UserException {
+    public ResponseEntity<String> getTotalExpensesByUsername(){
         return new ResponseEntity<>(expenseService.getTotalExpensesByUsername() , HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/get-total-expenses-by-user-name-and-category")
-    public ResponseEntity<String> getTotalExpensesByUsernameAndCategory(@RequestParam String category) throws UserException {
+    public ResponseEntity<String> getTotalExpensesByUsernameAndCategory(@RequestParam String category){
         return new ResponseEntity<>(expenseService.getTotalExpensesByUsernameAndCategory(category) , HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @GetMapping("/get-expenses-by-year-and-month")
+    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByYearAndMonth(@RequestParam int year, @RequestParam int month) throws ExpenseException {
+        return new ResponseEntity<>(expenseService.getExpensesByYearAndMonth(year, month) , HttpStatus.OK);
+    }
+
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostMapping("/add-expense")
