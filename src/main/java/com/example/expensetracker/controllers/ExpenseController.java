@@ -3,6 +3,7 @@ import com.example.expensetracker.exceptions.ExpenseException;
 import com.example.expensetracker.requestDTOs.ExpenseRequestDTO;
 import com.example.expensetracker.responseDTOs.ExpenseResponseDTO;
 import com.example.expensetracker.services.ExpenseService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,14 +22,14 @@ public class ExpenseController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/get-all")
-    public ResponseEntity<List<ExpenseResponseDTO>> getAllExpenses() {
-        return new ResponseEntity<>(expenseService.getAllExpenses() , HttpStatus.OK);
+    public ResponseEntity<Page<ExpenseResponseDTO>> getAllExpenses(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size) {
+        return new ResponseEntity<>(expenseService.getAllExpenses(page, size) , HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/get-expenses-by-user-name")
-    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByUsername(){
-        return new ResponseEntity<>(expenseService.getAllExpensesByUsername() , HttpStatus.OK);
+    public ResponseEntity<Page<ExpenseResponseDTO>> getExpensesByUsername(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "3") int size){
+        return new ResponseEntity<>(expenseService.getAllExpensesByUsername(page, size) , HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -45,8 +46,9 @@ public class ExpenseController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/get-expenses-by-year-and-month")
-    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByYearAndMonth(@RequestParam int year, @RequestParam int month) throws ExpenseException {
-        return new ResponseEntity<>(expenseService.getExpensesByYearAndMonth(year, month) , HttpStatus.OK);
+    public ResponseEntity<Page<ExpenseResponseDTO>> getExpensesByYearAndMonth(@RequestParam int year, @RequestParam int month,
+                                                                              @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size) throws ExpenseException {
+        return new ResponseEntity<>(expenseService.getExpensesByYearAndMonth(year, month, page, size) , HttpStatus.OK);
     }
 
 

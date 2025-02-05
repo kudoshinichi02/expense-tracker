@@ -6,6 +6,9 @@ import com.example.expensetracker.models.User;
 import com.example.expensetracker.repos.UserRepo;
 import com.example.expensetracker.requestDTOs.UserRequestDTO;
 import com.example.expensetracker.responseDTOs.UserResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -21,8 +24,9 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<UserResponseDTO> getAllUsers() {
-        return userRepo.findAll().stream().map(UserMapper::toDTO).toList();
+    public Page<UserResponseDTO> getAllUsers(int page , int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepo.findAll(pageable).map(UserMapper::toDTO);
     }
 
     public UserResponseDTO getUserById(long id) throws UserException {
@@ -35,8 +39,9 @@ public class UserService {
         return UserMapper.toDTO(userToFindOptional.get());
     }
 
-    public List<UserResponseDTO> getUsersByYearAndMonth(int year, int month){
-        return userRepo.findUsersByCreationDateMonthAndYear(year, month).stream().map(UserMapper::toDTO).toList();
+    public Page<UserResponseDTO> getUsersByYearAndMonth(int page, int size, int year, int month){
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepo.findUsersByCreationDateMonthAndYear(pageable, year, month).map(UserMapper::toDTO);
     }
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) throws UserException {

@@ -4,6 +4,7 @@ import com.example.expensetracker.exceptions.UserException;
 import com.example.expensetracker.requestDTOs.UserRequestDTO;
 import com.example.expensetracker.responseDTOs.UserResponseDTO;
 import com.example.expensetracker.services.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,8 +23,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/get-all")
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
-        return new ResponseEntity<>(userService.getAllUsers() , HttpStatus.OK);
+    public ResponseEntity<Page<UserResponseDTO>> getAllUsers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size) {
+        return new ResponseEntity<>(userService.getAllUsers(page, size) , HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -34,8 +35,9 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping("/get-users-by-date")
-    public ResponseEntity<List<UserResponseDTO>> getUsersByDate(@RequestParam int year ,@RequestParam int month){
-        return new ResponseEntity<>(userService.getUsersByYearAndMonth(year , month) , HttpStatus.OK);
+    public ResponseEntity<Page<UserResponseDTO>> getUsersByDate(@RequestParam int year ,@RequestParam int month,
+    @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size){
+        return new ResponseEntity<>(userService.getUsersByYearAndMonth(page, size, year, month) , HttpStatus.OK);
     }
 
     @PostMapping("/add-user")
